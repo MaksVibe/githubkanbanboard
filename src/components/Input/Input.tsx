@@ -12,7 +12,7 @@ export const Input: React.FC<InputProps> = () => {
   return (
     <Styled.Wrapper>
       <p>https://github.com/facebook/react</p>
-      <Styled.From
+      <Styled.Form
         onSubmit={e => {
           e.preventDefault();
           dispatch(fetchRepo(value));
@@ -24,8 +24,10 @@ export const Input: React.FC<InputProps> = () => {
           value={value}
           onChange={e => setValue(e.target.value)}
         />
-        <Styled.Button type={"submit"}>Load issues</Styled.Button>
-      </Styled.From>
+        <Styled.Button type={"submit"} disabled={value.length < 1 && true}>
+          Load issues
+        </Styled.Button>
+      </Styled.Form>
     </Styled.Wrapper>
   );
 };

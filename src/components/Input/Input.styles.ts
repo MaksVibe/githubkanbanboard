@@ -1,8 +1,10 @@
 import styled from "styled-components";
 
-export const Wrapper = styled.div``;
+export const Wrapper = styled.div`
+  margin-bottom: 20px;
+`;
 
-export const From = styled.form`
+export const Form = styled.form`
   display: flex;
   justify-content: space-between;
   gap: 20px;
