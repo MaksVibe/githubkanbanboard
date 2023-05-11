@@ -1,17 +1,21 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchRepo } from "../../redux/repoOperations";
 import * as Styled from "./Input.styles";
 
 export interface InputProps {}
 
 export const Input: React.FC<InputProps> = () => {
   const [value, setValue] = useState<string>("");
+  const dispatch = useDispatch();
 
   return (
     <Styled.Wrapper>
+      <p>https://github.com/facebook/react</p>
       <Styled.From
         onSubmit={e => {
           e.preventDefault();
-          console.log("Yuupiii!");
+          dispatch(fetchRepo(value));
         }}
       >
         <Styled.Input
