@@ -1,12 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchRepo } from "./repoOperations";
+import { fetchRepo, refresh } from "./repoOperations";
 
 export interface repoState {
-  currentRepo: [];
+  currentRepo: null;
+  error: null;
 }
 
 const initialState: repoState = {
-  currentRepo: [],
+  currentRepo: null,
+  error: null,
 };
 
 export const repoSlice = createSlice({
@@ -14,9 +16,34 @@ export const repoSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(fetchRepo.fulfilled, (state, { payload }) => {
-      state.currentRepo = payload;
-    });
+    builder
+      // Get info about repo
+      .addCase(fetchRepo.pending, state => {
+        state.currentRepo = null;
+        state.error = null;
+      })
+      .addCase(fetchRepo.fulfilled, (state, { payload }) => {
+        state.currentRepo = payload;
+        state.error = null;
+      })
+      .addCase(fetchRepo.rejected, (state, { payload }) => {
+        state.currentRepo = null;
+        state.error = payload;
+      })
+
+      // Refresh page and render current repo
+      .addCase(refresh.pending, state => {
+        state.currentRepo = null;
+        state.error = null;
+      })
+      .addCase(refresh.fulfilled, (state, { payload }) => {
+        state.currentRepo = payload || null;
+        state.error = null;
+      })
+      .addCase(refresh.rejected, (state, { payload }) => {
+        state.currentRepo = null;
+        state.error = payload;
+      });
   },
 });
 
