@@ -1,19 +1,25 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchRepo } from "./repoOperations";
 
 export interface repoState {
-  value: [];
+  currentRepo: [];
 }
 
 const initialState: repoState = {
-  value: [],
+  currentRepo: [],
 };
 
-export const counterSlice = createSlice({
+export const repoSlice = createSlice({
   name: "counter",
   initialState,
   reducers: {},
+  extraReducers: builder => {
+    builder.addCase(fetchRepo.fulfilled, (state, { payload }) => {
+      state.currentRepo = payload;
+    });
+  },
 });
 
-export const {} = counterSlice.actions;
+// export const {} = counterSlice.actions;
 
-export default counterSlice.reducer;
+export const repoReducer = repoSlice.reducer;
