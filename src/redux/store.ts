@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { repoReducer } from "./repoSlice";
+import { repoReducer } from "./repo/repoSlice";
+import { dndReducer } from "./dnd/dndSlice";
 
 export const store = configureStore({
   reducer: {
     repo: repoReducer,
+    dndActions: dndReducer,
   },
 });
 
