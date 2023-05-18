@@ -8,10 +8,19 @@ export interface InputProps {}
 export const Input: React.FC<InputProps> = () => {
   const [value, setValue] = useState<string>("");
   const dispatch = useDispatch();
+  const rejected = localStorage.getItem("rejected");
 
   return (
     <Styled.Wrapper>
-      <p>https://github.com/facebook/react</p>
+      <p>Try with this example: https://github.com/facebook/react</p>
+      <br />
+      {rejected && (
+        <p>
+          <span style={{ color: "red" }}>Sorry, there's no such repo.</span>
+          <br />
+          Try another url/repo or check the url
+        </p>
+      )}
       <Styled.Form
         onSubmit={e => {
           e.preventDefault();
