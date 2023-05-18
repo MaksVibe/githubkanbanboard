@@ -6,7 +6,8 @@ export const Wrapper = styled.div`
   gap: 10px;
   margin-bottom: 16px;
 `;
-export const Text = styled.p`
+export const Text = styled.a`
+  text-decoration: none;
   text-transform: capitalize;
   color: blue;
 `;

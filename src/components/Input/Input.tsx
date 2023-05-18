@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { fetchRepo } from "../../redux/repoOperations";
+import { fetchRepo } from "../../redux/repo/repoOperations";
 import * as Styled from "./Input.styles";
 
 export interface InputProps {}
@@ -22,7 +22,9 @@ export const Input: React.FC<InputProps> = () => {
           type={"url"}
           placeholder={"Enter repo URL"}
           value={value}
-          onChange={e => setValue(e.target.value)}
+          onChange={e => {
+            setValue(e.target.value);
+          }}
         />
         <Styled.Button type={"submit"} disabled={value.length < 1 && true}>
           Load issues

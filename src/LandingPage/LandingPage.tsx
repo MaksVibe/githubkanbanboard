@@ -1,27 +1,23 @@
-import React, { useEffect } from "react";
-import { Input } from "../components/Input/Input";
-import { Breadcrumbs } from "../components/Breadcrumbs/Breadcrumbs";
-import * as Styled from "./LandingPage.styles";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { selectRepo } from "../redux/selectors";
-import { refresh } from "../redux/repoOperations";
+
+import { Breadcrumbs } from "../components/Breadcrumbs/Breadcrumbs";
+import { Columns } from "../components/Columns/Columns";
+import { Input } from "../components/Input/Input";
+
+import * as Styled from "./LandingPage.styles";
 
 interface LandingPageProps {}
 
 export const LandingPage: React.FunctionComponent<LandingPageProps> = () => {
-  const { currentRepo } = useSelector(selectRepo);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(refresh(currentRepo));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const repo = useSelector(selectRepo);
 
   return (
     <Styled.Wrapper>
       <Input />
-      {currentRepo && <Breadcrumbs repo={currentRepo} />}
-      <Styled.Item>Tasks</Styled.Item>
+      {repo.currentRepo && <Breadcrumbs repo={repo.currentRepo} />}
+      <Columns />
     </Styled.Wrapper>
   );
 };

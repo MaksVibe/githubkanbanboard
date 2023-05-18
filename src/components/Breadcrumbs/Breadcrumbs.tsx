@@ -13,9 +13,13 @@ export interface BreadcrumbsProps {
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ repo }) => {
   return (
     <Styled.Wrapper>
-      <Styled.Text>{repo.owner}</Styled.Text>
+      <Styled.Text href={`https://github.com/${repo.owner}`}>
+        {repo.owner}
+      </Styled.Text>
       <FaAngleRight color="blue" />
-      <Styled.Text>{repo.name}</Styled.Text>
+      <Styled.Text href={`https://github.com/${repo.owner}/${repo.name}`}>
+        {repo.name}
+      </Styled.Text>
       <Styled.StarsWrapper>
         <Styled.Star>
           <FaStar />
