@@ -1,6 +1,7 @@
-import React from "react";
-import * as Styled from "./Breadcrumbs.styles";
-import { FaStar, FaAngleRight } from "react-icons/fa";
+import React from 'react';
+import { FaAngleRight, FaStar } from 'react-icons/fa';
+
+import * as Styled from './Breadcrumbs.styles';
 
 export interface BreadcrumbsProps {
   repo: {
@@ -13,13 +14,9 @@ export interface BreadcrumbsProps {
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ repo }) => {
   return (
     <Styled.Wrapper>
-      <Styled.Text href={`https://github.com/${repo.owner}`}>
-        {repo.owner}
-      </Styled.Text>
+      <Styled.Text href={`https://github.com/${repo.owner}`}>{repo.owner}</Styled.Text>
       <FaAngleRight color="blue" />
-      <Styled.Text href={`https://github.com/${repo.owner}/${repo.name}`}>
-        {repo.name}
-      </Styled.Text>
+      <Styled.Text href={`https://github.com/${repo.owner}/${repo.name}`}>{repo.name}</Styled.Text>
       <Styled.StarsWrapper>
         <Styled.Star>
           <FaStar />

@@ -1,14 +1,11 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getItem, getLocateFrom } from "../../redux/dnd/dndOperations";
-import { updateRepo } from "../../redux/repo/repoOperations";
-import {
-  selectItem,
-  selectLocateFrom,
-  selectRepo,
-} from "../../redux/selectors";
-import { Task } from "../Task/Task";
-import * as Styled from "./TaskList.styles";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { getItem, getLocateFrom } from '../../redux/dnd/dndOperations';
+import { updateRepo } from '../../redux/repo/repoOperations';
+import { selectItem, selectLocateFrom, selectRepo } from '../../redux/selectors';
+import { Task } from '../Task/Task';
+import * as Styled from './TaskList.styles';
 
 export interface TaskListProps {
   toDo?: boolean;
@@ -16,12 +13,8 @@ export interface TaskListProps {
   done?: boolean;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({
-  toDo,
-  inProgress,
-  done,
-}) => {
-  const [onItem, setOnItem] = useState("");
+export const TaskList: React.FC<TaskListProps> = ({ toDo, inProgress, done }) => {
+  const [onItem, setOnItem] = useState('');
   const dispatch = useDispatch();
   const repo = useSelector(selectRepo);
   const locateFrom = useSelector(selectLocateFrom);
@@ -29,11 +22,7 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   const onDragStart = (e: React.DragEvent<HTMLLIElement>) => {
     dispatch(getItem(e.currentTarget.id));
-    dispatch(
-      getLocateFrom(
-        (toDo && "toDo") || (inProgress && "inProgress") || (done && "done")
-      )
-    );
+    dispatch(getLocateFrom((toDo && 'toDo') || (inProgress && 'inProgress') || (done && 'done')));
   };
 
   const onDragEnter = (e: React.DragEvent<HTMLLIElement>) => {
@@ -54,14 +43,11 @@ export const TaskList: React.FC<TaskListProps> = ({
         locate: {
           from: locateFrom,
           item: item,
-          to:
-            (toDo && "toDo") ||
-            (inProgress && "inProgress") ||
-            (done && "done"),
+          to: (toDo && 'toDo') || (inProgress && 'inProgress') || (done && 'done'),
 
           onItem,
         },
-      })
+      }),
     );
   };
 

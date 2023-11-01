@@ -1,10 +1,9 @@
-import React from "react";
-import { TaskList } from "../TaskList/TaskList";
-import * as Styled from "./Columns.styles";
+import React from 'react';
 
-export interface ColumnsProps {}
+import { TaskList } from '../TaskList/TaskList';
+import * as Styled from './Columns.styles';
 
-export const Columns: React.FC<ColumnsProps> = () => {
+export const Columns: React.FC = () => {
   return (
     <Styled.Columns>
       <Styled.Column>
