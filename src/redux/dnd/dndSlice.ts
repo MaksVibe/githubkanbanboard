@@ -4,7 +4,7 @@ import { getItem, getLocateFrom } from './dndOperations';
 
 export type DndState = {
   item: {
-    id: string;
+    id: number;
     error: string;
   };
   locateFrom: {
@@ -15,7 +15,7 @@ export type DndState = {
 
 const initialState: DndState = {
   item: {
-    id: '',
+    id: 0,
     error: '',
   },
   locateFrom: {
@@ -42,15 +42,15 @@ export const dndSlice = createSlice({
       state.locateFrom.error = action.payload instanceof Error ? action.payload.message : 'Something went wrong...';
     });
     builder.addCase(getItem.pending, state => {
-      state.item.id = '';
+      state.item.id = 0;
       state.item.error = '';
     });
-    builder.addCase(getItem.fulfilled, (state, action: PayloadAction<string>) => {
+    builder.addCase(getItem.fulfilled, (state, action: PayloadAction<number>) => {
       state.item.id = action.payload;
       state.item.error = '';
     });
     builder.addCase(getItem.rejected, (state, action) => {
-      state.item.id = '';
+      state.item.id = 0;
       state.item.error = action.payload instanceof Error ? action.payload.message : 'Something went wrong...';
     });
   },

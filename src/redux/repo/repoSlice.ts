@@ -1,14 +1,37 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
-import { Repo } from './repoOperations';
+import { fetchRepo, Repo, updateRepo } from './repoOperations';
+
+export const defaultIssue = {
+  id: 0,
+  title: '',
+  number: 0,
+  created_at: '',
+  user: {
+    login: '',
+  },
+  comments: 0,
+};
+
+export const defaultRepo = {
+  id: '',
+  name: '',
+  owner: '',
+  stars: 0,
+  issues: {
+    toDo: [defaultIssue],
+    inProgress: [defaultIssue],
+    done: [defaultIssue],
+  },
+};
 
 export type RepoState = {
-  currentRepo: null | Repo;
+  currentRepo: Repo;
   error: null | string;
 };
 
 const initialState: RepoState = {
-  currentRepo: null,
+  currentRepo: defaultRepo,
   error: null,
 };
 
@@ -19,41 +42,32 @@ export const repoSlice = createSlice({
   extraReducers: builder => {
     builder
       // Get a repo info
-      .addMatcher(
-        action => action.type.endsWith('/pending'),
-        state => {
-          state.currentRepo = null;
-          state.error = null;
-        },
-      )
-      .addMatcher(
-        action => action.type.endsWith('/fulfilled'),
-        (state, action: PayloadAction<Repo>) => {
-          state.currentRepo = action.payload;
-          state.error = null;
-        },
-      )
-      .addMatcher(
-        action => action.type.endsWith('/rejected'),
-        (state, action: PayloadAction<string>) => {
-          state.currentRepo = null;
-          state.error = action.payload;
-        },
-      );
+      .addCase(fetchRepo.pending, state => {
+        state.currentRepo = defaultRepo;
+        state.error = null;
+      })
+      .addCase(fetchRepo.fulfilled, (state, { payload }) => {
+        state.currentRepo = payload;
+        state.error = null;
+      })
+      .addCase(fetchRepo.rejected, (state, { payload }) => {
+        state.currentRepo = defaultRepo;
+        state.error = payload as string;
+      })
 
-    // Update repository issues
-    // .addCase(updateRepo.pending, state => {
-    //   state.currentRepo = null;
-    //   state.error = null;
-    // })
-    // .addCase(updateRepo.fulfilled, (state, action: PayloadAction<Repo>) => {
-    //   state.currentRepo = action.payload;
-    //   state.error = null;
-    // })
-    // .addCase(updateRepo.rejected, (state, action: PayloadAction<string>) => {
-    //   state.currentRepo = null;
-    //   state.error = action.payload;
-    // });
+      // Update repository issues
+      .addCase(updateRepo.pending, state => {
+        state = { ...state };
+        state.error = null;
+      })
+      .addCase(updateRepo.fulfilled, (state, { payload }) => {
+        state.currentRepo = payload;
+        state.error = null;
+      })
+      .addCase(updateRepo.rejected, (state, { payload }) => {
+        state = { ...state };
+        state.error = payload as string;
+      });
   },
 });
 

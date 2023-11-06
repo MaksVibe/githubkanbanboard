@@ -8,15 +8,15 @@ export const Columns: React.FC = () => {
     <Styled.Columns>
       <Styled.Column>
         <Styled.Title>ToDo</Styled.Title>
-        <TaskList toDo />
+        <TaskList currentColumn="toDo" />
       </Styled.Column>
       <Styled.Column>
         <Styled.Title>In Progress</Styled.Title>
-        <TaskList inProgress />
+        <TaskList currentColumn="inProgress" />
       </Styled.Column>
       <Styled.Column>
         <Styled.Title>Done</Styled.Title>
-        <TaskList done />
+        <TaskList currentColumn="done" />
       </Styled.Column>
     </Styled.Columns>
   );

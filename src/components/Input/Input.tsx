@@ -2,11 +2,12 @@ import React, { ChangeEventHandler, FormEventHandler, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { fetchRepo } from '../../redux/repo/repoOperations';
+import { AppDispatch } from '../../redux/store';
 import * as Styled from './Input.styles';
 
 export const Input: React.FC = () => {
   const [value, setValue] = useState<string>('');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const rejected = localStorage.getItem('rejected');
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = e => {

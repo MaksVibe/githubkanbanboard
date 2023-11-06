@@ -1,9 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Octokit } from 'octokit';
 
-export type Issue = {
-  id: string;
-};
+import { Issue } from '../../components/Task/Task';
 
 export type Repo = {
   id: string;
@@ -24,9 +22,9 @@ export type Args = {
 
 type Locate = {
   from: { value: string };
-  item: { id: string };
+  item: { id: number };
   to: string;
-  onItem: string;
+  onItem: number;
 };
 
 const octokit = new Octokit({
@@ -73,8 +71,9 @@ export const fetchRepo = createAsyncThunk<Repo, string>('fetchRepo', async (url,
 
     return currentRepo;
   } catch (error: unknown) {
+    console.error(error);
     localStorage.setItem('rejected', JSON.stringify(true));
-    return thunkAPI.rejectWithValue(error);
+    return thunkAPI.rejectWithValue('Something went wrong...');
   }
 });
 
@@ -109,8 +108,8 @@ export const updateRepo = createAsyncThunk<Repo, Args>('updateRepo', async (args
     localStorage.removeItem(args.repo.id);
     localStorage.setItem(args.repo.id, JSON.stringify(newRepo));
     return newRepo;
-  } catch ({ message }) {
-    return thunkAPI.rejectWithValue(message);
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error);
   }
 });
 
@@ -137,7 +136,9 @@ const sortIssues = (issues: Repo['issues'], locate: Locate): Repo['issues'] => {
   updatedIssues[from.value as keyof Repo['issues']] = updatedIssues[from.value as keyof Repo['issues']].filter(
     issue => issue.id !== item.id,
   );
-  issueToMove && (updatedIssues as Record<string, Issue[]>)[to].unshift(issueToMove);
+  const issuesArray = [...updatedIssues[to as 'toDo' | 'inProgress' | 'done']];
+  issuesArray.unshift(issueToMove as Issue);
+  updatedIssues[to as 'toDo' | 'inProgress' | 'done'] = issuesArray;
 
   return updatedIssues;
 };

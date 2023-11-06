@@ -2,28 +2,35 @@ import React from 'react';
 
 import * as Styled from './Task.styles';
 
-export interface TaskProps {
-  issue: any;
-}
+export type Issue = {
+  id: number;
+  title: string;
+  number: number;
+  created_at: string;
+  user: {
+    login: string;
+  };
+  comments: number;
+};
 
-export const Task: React.FC<TaskProps> = issue => {
+export const Task: React.FC<{ issue: Issue }> = ({ issue }) => {
   const today = new Date();
-  const created = new Date(issue?.issue?.created_at);
+  const created = new Date(issue?.created_at);
   const days = Math.ceil((today.getTime() - created.getTime()) / (1000 * 3600 * 24));
 
   return (
     <Styled.Wrapper>
-      <Styled.Title>{issue?.issue?.title}</Styled.Title>
+      <Styled.Title>{issue?.title}</Styled.Title>
       <Styled.Text>
-        #{issue?.issue?.number} opened {days === 1 ? 'today' : `${days} days ago`}
+        #{issue?.number} opened {days === 1 ? 'today' : `${days} days ago`}
       </Styled.Text>
       <Styled.Text>
-        {issue?.issue?.user?.login} |{' '}
-        {!issue?.issue?.comments
+        {issue?.user?.login} |{' '}
+        {!issue?.comments
           ? 'No comments'
-          : issue?.issue?.comments === 1
-          ? `${issue?.issue?.comments} comment`
-          : `${issue?.issue?.comments} comments`}
+          : issue?.comments === 1
+          ? `${issue?.comments} comment`
+          : `${issue?.comments} comments`}
       </Styled.Text>
     </Styled.Wrapper>
   );
