@@ -1,59 +1,58 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getItem, getLocateFrom } from "./dndOperations";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface repoState {
+import { getItem, getLocateFrom } from './dndOperations';
+
+export type DndState = {
   item: {
-    id: null;
-    error: null;
+    id: string;
+    error: string;
   };
   locateFrom: {
-    value: null;
-    error: null;
+    value: string;
+    error: string;
   };
-}
+};
 
-const initialState: repoState = {
+const initialState: DndState = {
   item: {
-    id: null,
-    error: null,
+    id: '',
+    error: '',
   },
   locateFrom: {
-    value: null,
-    error: null,
+    value: '',
+    error: '',
   },
 };
 
 export const dndSlice = createSlice({
-  name: "dndSlice",
+  name: 'dndSlice',
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder
-      .addCase(getLocateFrom.pending, state => {
-        state.locateFrom.value = null;
-        state.locateFrom.error = null;
-      })
-      .addCase(getLocateFrom.fulfilled, (state, { payload }) => {
-        state.locateFrom.value = payload;
-        state.locateFrom.error = null;
-      })
-      .addCase(getLocateFrom.rejected, (state, { payload }) => {
-        state.locateFrom.value = null;
-        state.locateFrom.error = payload;
-      })
-
-      .addCase(getItem.pending, state => {
-        state.item.id = null;
-        state.item.error = null;
-      })
-      .addCase(getItem.fulfilled, (state, { payload }) => {
-        state.item.id = payload;
-        state.item.error = null;
-      })
-      .addCase(getItem.rejected, (state, { payload }) => {
-        state.item.id = null;
-        state.item.error = payload;
-      });
+    builder.addCase(getLocateFrom.pending, state => {
+      state.locateFrom.value = '';
+      state.locateFrom.error = '';
+    });
+    builder.addCase(getLocateFrom.fulfilled, (state, action: PayloadAction<string>) => {
+      state.locateFrom.value = action.payload;
+      state.locateFrom.error = '';
+    });
+    builder.addCase(getLocateFrom.rejected, (state, action) => {
+      state.locateFrom.value = '';
+      state.locateFrom.error = action.payload instanceof Error ? action.payload.message : 'Something went wrong...';
+    });
+    builder.addCase(getItem.pending, state => {
+      state.item.id = '';
+      state.item.error = '';
+    });
+    builder.addCase(getItem.fulfilled, (state, action: PayloadAction<string>) => {
+      state.item.id = action.payload;
+      state.item.error = '';
+    });
+    builder.addCase(getItem.rejected, (state, action) => {
+      state.item.id = '';
+      state.item.error = action.payload instanceof Error ? action.payload.message : 'Something went wrong...';
+    });
   },
 });
 

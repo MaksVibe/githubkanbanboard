@@ -1,236 +1,157 @@
-/* eslint-disable eqeqeq */
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Octokit } from "octokit";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { Octokit } from 'octokit';
+
+export type Issue = {
+  id: string;
+};
+
+export type Repo = {
+  id: string;
+  name: string;
+  owner: string;
+  stars: number;
+  issues: {
+    toDo: Issue[];
+    inProgress: Issue[];
+    done: Issue[];
+  };
+};
+
+export type Args = {
+  repo: Repo;
+  locate: Locate;
+};
+
+type Locate = {
+  from: { value: string };
+  item: { id: string };
+  to: string;
+  onItem: string;
+};
 
 const octokit = new Octokit({
   auth: process.env.REACT_APP_ACCESS_TOKEN,
 });
 
-export const fetchRepo: any = createAsyncThunk(
-  "fetchRepo",
-  async (url: string, thunkAPI) => {
-    const path = url.split("com").pop();
-    localStorage.removeItem("rejected");
+export const fetchRepo = createAsyncThunk<Repo, string>('fetchRepo', async (url, thunkAPI) => {
+  const path = url.split('com').pop();
+  localStorage.removeItem('rejected');
 
-    try {
-      const issues = await octokit.request(`GET /repos${path}/issues`);
-      const { data } = await octokit.request(`GET /repos${path}`);
-      const oldRepo = JSON.parse(`${localStorage.getItem(data.id)}`);
+  try {
+    const issuesResponse = await octokit.request(`GET /repos${path}/issues`);
+    const repoResponse = await octokit.request(`GET /repos${path}`);
+    const oldRepoJson = localStorage.getItem(repoResponse.data.id);
+    const oldRepo = oldRepoJson ? JSON.parse(oldRepoJson) : null;
 
-      // Filter doubling issues
-      const filteredIssues = filterIssues(oldRepo, issues);
+    // Filter doubling issues
+    const filteredIssues = filterIssues(oldRepo, issuesResponse.data);
 
-      // Store data in 1 object
-      const currentRepo = {
-        id: data.id,
-        name: data.name,
-        owner: data.owner.login,
-        stars: data.stargazers_count,
-        issues: oldRepo
-          ? {
-              toDo: [...filteredIssues],
-              inProgress: oldRepo.issues.inProgress,
-              done: oldRepo.issues.done,
-            }
-          : {
-              toDo: issues.data,
-              inProgress: [],
-              done: [],
-            },
-      };
+    // Store data in 1 object
+    const currentRepo = {
+      id: repoResponse.data.id,
+      name: repoResponse.data.name,
+      owner: repoResponse.data.owner.login,
+      stars: repoResponse.data.stargazers_count,
+      issues: oldRepo
+        ? {
+            toDo: [...filteredIssues],
+            inProgress: oldRepo.issues.inProgress,
+            done: oldRepo.issues.done,
+          }
+        : {
+            toDo: issuesResponse.data,
+            inProgress: [],
+            done: [],
+          },
+    };
 
-      // Check if local storage has fetched repo
-      if (!oldRepo) {
-        localStorage.setItem(currentRepo.id, JSON.stringify(currentRepo));
-      }
+    // Check if local storage has fetched repo
+    if (!oldRepo) {
       localStorage.setItem(currentRepo.id, JSON.stringify(currentRepo));
-
-      return currentRepo;
-    } catch ({ message }) {
-      localStorage.setItem("rejected", JSON.stringify(true));
-      return thunkAPI.rejectWithValue(message);
     }
+    localStorage.setItem(currentRepo.id, JSON.stringify(currentRepo));
+
+    return currentRepo;
+  } catch (error: unknown) {
+    localStorage.setItem('rejected', JSON.stringify(true));
+    return thunkAPI.rejectWithValue(error);
   }
-);
-
-export interface Args {
-  repo: {
-    id: string;
-    name: string;
-    owner: string;
-    stars: null;
-    issues: { toDo: any[]; inProgress: any[]; done: any[] };
-  };
-  locate: Locate;
-}
-
-export interface Locate {
-  from: { value: string };
-  item: { id: string };
-  to: string;
-  onItem: string;
-}
-
-export interface Issues {
-  toDo: any;
-  inProgress: any;
-  done: any;
-}
+});
 
 // UPDATE
-export const updateRepo: any = createAsyncThunk(
-  "updateRepo",
-  async (args: Args, thunkAPI) => {
-    const issues = args.repo.issues;
-
-    try {
-      if (args.locate.from.value == args.locate.to) {
-        const swapedIssues = swapTasks(issues, args.locate);
-        const swapedRepo = {
-          id: args.repo.id,
-          name: args.repo.name,
-          owner: args.repo.owner,
-          stars: args.repo.stars,
-          issues: swapedIssues,
-        };
-
-        localStorage.removeItem(args.repo.id);
-        localStorage.setItem(args.repo.id, JSON.stringify(swapedRepo));
-        return swapedRepo;
-      }
-      const sortedIssues = sortIssues(issues, args.locate);
-
-      const newRepo = {
+export const updateRepo = createAsyncThunk<Repo, Args>('updateRepo', async (args, thunkAPI) => {
+  try {
+    if (args.locate.from.value == args.locate.to) {
+      const swapedIssues = swapTasks(args.repo.issues, args.locate);
+      const swapedRepo = {
         id: args.repo.id,
         name: args.repo.name,
         owner: args.repo.owner,
         stars: args.repo.stars,
-        issues: sortedIssues,
+        issues: swapedIssues,
       };
 
       localStorage.removeItem(args.repo.id);
-      localStorage.setItem(args.repo.id, JSON.stringify(newRepo));
-      return newRepo;
-    } catch ({ message }) {
-      return thunkAPI.rejectWithValue(message);
+      localStorage.setItem(args.repo.id, JSON.stringify(swapedRepo));
+      return swapedRepo;
     }
+
+    const sortedIssues = sortIssues(args.repo.issues, args.locate);
+
+    const newRepo: Repo = {
+      id: args.repo.id,
+      name: args.repo.name,
+      owner: args.repo.owner,
+      stars: args.repo.stars,
+      issues: sortedIssues,
+    };
+
+    localStorage.removeItem(args.repo.id);
+    localStorage.setItem(args.repo.id, JSON.stringify(newRepo));
+    return newRepo;
+  } catch ({ message }) {
+    return thunkAPI.rejectWithValue(message);
   }
-);
+});
 
 // FILTER FOR FETCHING
-const filterIssues = (repo: { issues: Issues }, issues: { data: any[] }) =>
-  repo &&
-  issues.data
-    .filter((issue: { id: string }) => {
-      let iss = repo.issues.inProgress.find(
-        (iss: { id: string }) => iss.id == issue.id
-      );
-
-      return issue.id != (repo.issues.inProgress.id || (iss && iss.id));
-    })
-    .filter((issue: { id: string }) => {
-      let iss = repo.issues.done.find(
-        (iss: { id: string }) => iss.id == issue.id
-      );
-
-      return issue.id != (repo.issues.done.id || (iss && iss.id));
-    });
-
-// SORT ISSUES TO UPDATE REPO
-const sortIssues = (issues: Issues, locate: Locate) => {
-  const issueId = locate.item.id;
-  const from = locate.from.value;
-  const to = locate.to;
-
-  const newIssues = {
-    toDo: [...issues.toDo],
-    inProgress: [...issues.inProgress],
-    done: [...issues.done],
-  };
-
-  if (from == "inProgress" && to == "toDo") {
-    const issue = issues.inProgress.find(
-      (issue: { id: string }) => issue.id == issueId
-    );
-    newIssues.toDo = [issue, ...issues.toDo];
-    issues.inProgress.length > 1
-      ? (newIssues.inProgress = issues.inProgress.filter(
-          (issue: { id: string }) => issue.id != issueId
-        ))
-      : (newIssues.inProgress = []);
-  } else if (from == "done" && to == "toDo") {
-    const issue = issues.done.find(
-      (issue: { id: string }) => issue.id == issueId
-    );
-    newIssues.toDo = [issue, ...issues.toDo];
-    issues.done.length > 1
-      ? (newIssues.done = issues.done.filter(
-          (issue: { id: string }) => issue.id != issueId
-        ))
-      : (newIssues.done = []);
-  } else if (from == "toDo" && to == "inProgress") {
-    const issue = issues.toDo.find(
-      (issue: { id: string }) => issue.id == issueId
-    );
-    newIssues.inProgress = [issue, ...issues.inProgress];
-    issues.toDo.length > 1
-      ? (newIssues.toDo = issues.toDo.filter(
-          (issue: { id: string }) => issue.id != issueId
-        ))
-      : (newIssues.toDo = []);
-  } else if (from == "done" && to == "inProgress") {
-    const issue = issues.done.find(
-      (issue: { id: string }) => issue.id == issueId
-    );
-    newIssues.inProgress = [issue, ...issues.inProgress];
-    issues.done.length > 1
-      ? (newIssues.done = issues.done.filter(
-          (issue: { id: string }) => issue.id != issueId
-        ))
-      : (newIssues.done = []);
-  } else if (from == "toDo" && to == "done") {
-    const issue = issues.toDo.find(
-      (issue: { id: string }) => issue.id == issueId
-    );
-    newIssues.done = [issue, ...issues.done];
-    issues.toDo.length > 1
-      ? (newIssues.toDo = issues.toDo.filter(
-          (issue: { id: string }) => issue.id != issueId
-        ))
-      : (newIssues.toDo = []);
-  } else if (from == "inProgress" && to == "done") {
-    const issue = issues.inProgress.find(
-      (issue: { id: string }) => issue.id == issueId
-    );
-    newIssues.done = [issue, ...issues.done];
-    issues.inProgress.length > 1
-      ? (newIssues.inProgress = issues.inProgress.filter(
-          (issue: { id: string }) => issue.id != issueId
-        ))
-      : (newIssues.inProgress = []);
+const filterIssues = (repo: Repo | null, issues: Issue[]) => {
+  if (!repo) {
+    return issues;
   }
 
-  return newIssues;
+  const inProgressIds = new Set(repo.issues.inProgress.map(issue => issue.id));
+  const doneIds = new Set(repo.issues.done.map(issue => issue.id));
+
+  return issues.filter(issue => !inProgressIds.has(issue.id) && !doneIds.has(issue.id));
 };
 
-const swapTasks = (issues: Issues, locate: Locate) => {
-  let a;
-  let b;
+// SORT ISSUES TO UPDATE REPO
+const sortIssues = (issues: Repo['issues'], locate: Locate): Repo['issues'] => {
+  const { from, to, item } = locate;
 
-  let arr: any =
-    (locate.to == "toDo" && [...issues.toDo]) ||
-    (locate.to == "inProgress" && [...issues.inProgress]) ||
-    (locate.to == "done" && [...issues.done]);
+  const issueToMove = issues[from.value as keyof Repo['issues']].find(issue => issue.id === item.id);
 
-  if (locate.from.value == locate.to) {
-    a = arr.indexOf(arr.find((i: { id: any }) => i.id == locate.item.id));
-    b = arr.indexOf(arr.find((i: { id: any }) => i.id == locate.onItem));
-    arr[a] = arr.splice(b, 1, arr[a])[0];
+  const updatedIssues = { ...issues };
+
+  updatedIssues[from.value as keyof Repo['issues']] = updatedIssues[from.value as keyof Repo['issues']].filter(
+    issue => issue.id !== item.id,
+  );
+  issueToMove && (updatedIssues as Record<string, Issue[]>)[to].unshift(issueToMove);
+
+  return updatedIssues;
+};
+
+const swapTasks = (issues: Repo['issues'], locate: Locate): Repo['issues'] => {
+  const { from, to, item, onItem } = locate;
+  const fromArray = issues[from.value as keyof Repo['issues']];
+  const toArray = issues[to as keyof Repo['issues']];
+  const itemIndex = fromArray.findIndex(issue => issue.id === item.id);
+  const onItemIndex = fromArray.findIndex(issue => issue.id === onItem);
+
+  if (itemIndex !== -1 && onItemIndex !== -1) {
+    [fromArray[itemIndex], fromArray[onItemIndex]] = [fromArray[onItemIndex], fromArray[itemIndex]];
   }
 
-  return {
-    toDo: locate.to == "toDo" ? [...arr] : [...issues.toDo],
-    inProgress: locate.to == "inProgress" ? [...arr] : [...issues.inProgress],
-    done: locate.to == "done" ? [...arr] : [...issues.done],
-  };
+  return { toDo: toArray, inProgress: fromArray, done: issues.done };
 };

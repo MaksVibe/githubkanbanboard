@@ -1,7 +1,6 @@
-export const selectRepo = (state: { repo: any }) => state.repo;
+import { DndState } from './dnd/dndSlice';
+import { RepoState } from './repo/repoSlice';
 
-export interface dnd {
-  dndActions: { locateFrom: any; item: any };
-}
-export const selectLocateFrom = (state: dnd) => state.dndActions.locateFrom;
-export const selectItem = (state: dnd) => state.dndActions.item;
+export const selectRepo = (state: { repo: RepoState }) => state.repo;
+export const selectLocateFrom = (state: { dndActions: DndState }) => state.dndActions.locateFrom;
+export const selectItem = (state: { dndActions: DndState }) => state.dndActions.item;
